@@ -1,4 +1,4 @@
 # Vase
 
-**TODO: Add description**
+A distributed file system - an assignment for CS4032
 
