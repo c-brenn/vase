@@ -5,7 +5,8 @@ defmodule Pot do
     import Supervisor.Spec, warn: false
 
     children = [
-      supervisor(Phoenix.PubSub.PG2, [:pot_pubsub, []])
+      supervisor(Phoenix.PubSub.PG2, [Pot.PubSub, []]),
+      supervisor(Pot.Presence, [])
     ]
 
     opts = [strategy: :one_for_one, name: Pot.Supervisor]
