@@ -37,7 +37,12 @@ defmodule Pot.Presence do
 
   def fetch(_topic, presences), do: presences
 
-  def handle_diff(_diff, state) do
+  def handle_diff(diff, state) do
+    Task.Supervisor.start_child(@task_supervisor, fn ->
+      for {_, {joins, leaves}} <- diff do
+        Urn.FileEventsChannel.broadcast_diff(group(joins), group(leaves))
+      end
+    end)
     {:ok, state}
   end
 
