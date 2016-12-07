@@ -6,7 +6,9 @@ defmodule Pot do
 
     children = [
       supervisor(Phoenix.PubSub.PG2, [Pot.PubSub, []]),
-      supervisor(Pot.Presence, [])
+      supervisor(Pot.Presence, []),
+      supervisor(Pot.File.Supervisor, []),
+      supervisor(Registry, [:unique, Pot.File.Registry])
     ]
 
     opts = [strategy: :one_for_one, name: Pot.Supervisor]
