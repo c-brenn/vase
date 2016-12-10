@@ -15,6 +15,8 @@ erl_crash.dump
 # this depending on your deployment strategy.
 /priv/static/
 
+web/elm/elm-stuff/
+web/static/vendor/main.js
 # The config/prod.secret.exs file by default contains sensitive
 # data and you should not commit it into version control.
 #
