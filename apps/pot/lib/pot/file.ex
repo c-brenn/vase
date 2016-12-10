@@ -15,7 +15,7 @@ defmodule Pot.File do
 
     dir = Path.dirname(path)
     base = Path.basename(path)
-    register_presences(pid, dir, base)
+    register_presences(pid, dir, base, :file)
   end
 
   def delete(path) do
@@ -32,14 +32,14 @@ defmodule Pot.File do
 
   def terminate(_, _), do: :ok
 
-  defp register_presences(pid, "/", base) do
-    Pot.Presence.track(pid, "/", base, %{})
+  defp register_presences(pid, "/", base, type) do
+    Pot.Presence.track(pid, "/", base, %{type: type})
   end
-  defp register_presences(pid, dir, base) do
-    Pot.Presence.track(pid, dir, base, %{})
+  defp register_presences(pid, dir, base, type) do
+    Pot.Presence.track(pid, dir, base, %{type: type})
 
     new_dir = Path.dirname(dir)
     new_base = Path.basename(dir)
-    register_presences(pid, new_dir, new_base)
+    register_presences(pid, new_dir, new_base, :directory)
   end
 end
