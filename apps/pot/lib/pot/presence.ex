@@ -39,8 +39,12 @@ defmodule Pot.Presence do
 
   def handle_diff(diff, state) do
     Task.Supervisor.start_child(@task_supervisor, fn ->
-      for {_, {joins, leaves}} <- diff do
-        Urn.FileEventsChannel.broadcast_diff(group(joins), group(leaves))
+      for {directory, {additions, deletions}} <- diff do
+        Urn.DirectoriesChannel.broadcast_diff(
+          directory,
+          group(additions),
+          group(deletions)
+        )
       end
     end)
     {:ok, state}
