@@ -21,21 +21,25 @@ defmodule Pot.File do
   def delete(path) do
     Registry.dispatch(Pot.File.Registry, path, fn files ->
       for { pid, _ } <- files do
-        GenServer.cast(pid, :delete)
+        Supervisor.terminate_child(Pot.File.Supervisor, pid)
       end
     end)
   end
 
-  def handle_cast(:delete, path) do
-    {:stop, :delete, path}
-  end
-
-  def terminate(_, _), do: :ok
-
-  defp register_presences(pid, "/", base, type) do
+  @doc """
+  Phoenix.Presence is used to track files across the cluster. There is no real
+  notion of a directory. Writing a file to given path creates the directories
+  in the path. This is to avoid having directories living on separate servers
+  to their contents (even worse when nested) - causing deltions/moves to
+  require massive coordination across the cluster. Each `File` process is
+  registered by name, then it is tracked in `Presence`. It is tracked against
+  each directory in the path, so that directories disappear when empty (it also
+  greatly simplifies `ls` et. al.)
+  """
+  def register_presences(pid, "/", base, type) do
     Pot.Presence.track(pid, "/", base, %{type: type})
   end
-  defp register_presences(pid, dir, base, type) do
+  def register_presences(pid, dir, base, type) do
     Pot.Presence.track(pid, dir, base, %{type: type})
 
     new_dir = Path.dirname(dir)
