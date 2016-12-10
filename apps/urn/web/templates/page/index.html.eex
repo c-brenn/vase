@@ -3,7 +3,4 @@
   <p class="lead">A productive web framework that<br />does not compromise speed and maintainability.</p>
 </div>
 
-<div class="row marketing">
-  <h1>Files</h1>
-  <ol id="file-list"></ol>
-</div>
+<div id="elm-container"></div>
