@@ -2,7 +2,7 @@ defmodule Urn.UserSocket do
   use Phoenix.Socket
 
   ## Channels
-  channel "file_events", Urn.FileEventsChannel
+  channel "directories:*", Urn.DirectoriesChannel
 
   ## Transports
   transport :websocket, Phoenix.Transports.WebSocket

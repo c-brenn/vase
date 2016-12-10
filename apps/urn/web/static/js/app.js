@@ -1,45 +1,18 @@
-// Brunch automatically concatenates all files in your
-// watched paths. Those paths can be configured at
-// config.paths.watched in "brunch-config.js".
-//
-// However, those files will only be executed if
-// explicitly imported. The only exception are files
-// in vendor, which are never wrapped in imports and
-// therefore are always executed.
-
-// Import dependencies
-//
-// If you no longer want to use a dependency, remember
-// to also remove its path from "config.paths.watched".
 import "phoenix_html"
-import  {Socket, Presence} from "phoenix"
+import  {Socket} from "phoenix"
 
 
 let socket = new Socket("/socket")
 socket.connect()
 
-let fileList = document.getElementById("file-list")
-let listBy = (file_name, {metas: metas}) => {
-  return file_name
-}
-let render = (presences) => {
-  fileList.innerHTML = Presence.list(presences, listBy)
-    .map(file_name => `<li>${file_name}</li>`)
-    .join("")
-}
+let channel = socket.channel("directories:/", {})
 
-let presences = {}
-
-let channel = socket.channel("file_events", {})
-
-channel.on("presence_state", state => {
-  presences = Presence.syncState(presences, state)
-  render(presences)
+channel.on("ls", dir_contents => {
+  console.log `Received dir_contents: ${dir_contents}`
 })
 
 channel.on("presence_diff", diff => {
-  presences = Presence.syncDiff(presences, diff)
-  render(presences)
+  console.log `Received diff: ${diff}`
 })
 
 channel.join()
