@@ -1,1 +1,41 @@
-/* This file is for your main application css. */
+body {
+  font-family: 'Source Sans Pro';
+}
+
+.navigator {
+  font-size: 2em;
+  padding: 20px 0;
+  display: flex;
+  align-items: center;
+  height: 80px;
+}
+
+.navigator > span {
+  padding: 0 8px;
+}
+
+.box {
+  border: 1px solid #c7c7c7;
+  border-radius: 5px;
+}
+
+.box-header {
+  background-color: #fafafa;
+  text-align: center;
+}
+
+.block {
+  display: block;
+  overflow: hidden;
+  padding: 7px 12px;
+}
+
+.box-item {
+  border-top: 1px solid #e1e1e1;
+}
+
+.icon {
+  display: inline-block;
+  vertical-align: middle;
+  padding-right: 0.5em;
+}
