@@ -39,11 +39,23 @@ defmodule Pot.Presence do
 
   def handle_diff(diff, state) do
     Task.Supervisor.start_child(@task_supervisor, fn ->
-      for {directory, {additions, deletions}} <- diff do
+      for {directory, {additions, potential_deletions}} <- diff do
+
+        still_present = list(directory)
+        potential_deletions = group(potential_deletions)
+
+        deletions = %{
+          directories: MapSet.difference(
+            potential_deletions.directories,
+            still_present.directories
+          ),
+          files: potential_deletions.files
+        }
+
         Urn.DirectoriesChannel.broadcast_diff(
           directory,
           group(additions),
-          group(deletions)
+          deletions
         )
       end
     end)
