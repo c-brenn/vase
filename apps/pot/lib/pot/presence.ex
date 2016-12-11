@@ -78,10 +78,13 @@ defmodule Pot.Presence do
   defp group(presences) do
     presences
     |> Enum.reverse()
-    |> Enum.reduce(%{}, fn {key, meta}, acc ->
-      Map.update(acc, to_string(key), %{metas: [meta]}, fn %{metas: metas} ->
-        %{metas: [meta | metas]}
-      end)
+    |> Enum.reduce(%{files: MapSet.new, directories: MapSet.new}, fn {key, meta}, acc ->
+      case meta.type do
+        :file ->
+          %{acc| files: MapSet.put(acc.files, key)}
+        :directory ->
+          %{acc| directories: MapSet.put(acc.directories, key)}
+      end
     end)
   end
 end

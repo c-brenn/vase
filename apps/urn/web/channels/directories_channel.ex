@@ -1,6 +1,5 @@
 defmodule Urn.DirectoriesChannel do
   use Urn.Web, :channel
-  alias Pot.Presence
   alias Phoenix.{
     Socket.Broadcast,
     PubSub
@@ -12,8 +11,7 @@ defmodule Urn.DirectoriesChannel do
   end
 
   def handle_info({:after_join, dir}, socket) do
-    {files, directories} = Pot.Dir.ls(dir)
-    push socket, "ls", %{files: files, directories: directories}
+    push socket, "ls", Pot.Dir.ls(dir)
     {:noreply, socket}
   end
 

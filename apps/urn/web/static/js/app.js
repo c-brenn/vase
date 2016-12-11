@@ -17,7 +17,6 @@ elmApp.ports.cd.subscribe(directory => {
 
 let initializeChannel = channel => {
   channel.on("ls", dir_contents => {
-    console.log `received contents: ${dir_contents}`
     elmApp.ports.rawDirectoryEvents.send(
       {
         event: 'ls',
@@ -29,7 +28,13 @@ let initializeChannel = channel => {
 
 
   channel.on("presence_diff", diff => {
-    console.log `Received diff: ${diff}`
+    elmApp.ports.rawDirectoryEvents.send(
+      {
+        event: 'presence_diff',
+        additions: diff.additions,
+        deletions: diff.deletions
+      }
+    )
   })
 
   channel.join()
