@@ -6,6 +6,7 @@ import Navigation exposing (Location)
 import Routing    exposing (Route)
 import Update     exposing (update)
 import View       exposing (view)
+import Socket     exposing (directoryEvents, cd)
 
 init : Location -> ( Model, Cmd Msg )
 init location =
@@ -13,11 +14,11 @@ init location =
         currentRoute =
           Routing.parseLocation location
     in
-        ( initialModel currentRoute, Cmd.none )
+        ( initialModel currentRoute, cd currentRoute )
 
 subscriptions : Model -> Sub Msg
 subscriptions model =
-    Sub.none
+  directoryEvents
 
 main : Program Never Model Msg
 main =
