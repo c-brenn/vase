@@ -2,10 +2,12 @@ module View exposing (..)
 
 import Html            exposing (..)
 import Html.Attributes exposing (..)
+import Html.Events     exposing (onInput, onClick)
 import Messages        exposing (Msg(..))
 import Models          exposing (Model)
 import Routing         exposing (Route)
 import Color           exposing (Color, darkGrey)
+import Util            exposing ((</>))
 import FontAwesome     as FA
 import Set
 
@@ -16,7 +18,11 @@ view model =
         if model.loading then
           spinner
         else
-          directoryListing model
+          div
+            [ class "row" ]
+            [ div [ class "col-sm-8" ] [ directoryListing model ]
+            , div [ class "col-sm-4" ] [ inputs model ]
+            ]
   in
       div
         []
@@ -102,13 +108,33 @@ makeIcon icon =
     [ class "icon"]
     [ icon darkGrey 16 ]
 
--- Utils
-(=>) = (,)
 
-(</>) : String -> String -> String
-(</>) directory file =
-  if String.endsWith "/" directory then
-    directory ++ file
+inputs : Model -> Html Msg
+inputs model =
+    div
+      []
+      [ newDirInput model
+      , fileUploadForm model
+      ]
 
-  else
-    directory ++ "/" ++ file
+newDirInput : Model -> Html Msg
+newDirInput model =
+  div
+    [ class "input-group" ]
+    [ input
+        [ type_ "text", class "form-control", value model.directoryInput, onInput DirectoryName ]
+        []
+    , span
+        [ class "input-group-btn" ]
+        [ button [ class "btn btn-primary", onClick NewDirectory ] [ text "new folder" ] ]
+    ]
+
+fileUploadForm : Model -> Html Msg
+fileUploadForm model =
+  Html.form
+    [ class "file-upload", method "post", action "/api/files/create", enctype "multipart/form-data"]
+    [ input [ type_ "file", name "upload" ] []
+    , input [ type_ "hidden", value model.cwd, name "path" ] []
+    , button [ class "btn btn-primary", type_ "submit" ] [ text "upload" ]
+    ]
+

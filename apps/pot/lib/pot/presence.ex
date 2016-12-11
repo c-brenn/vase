@@ -87,6 +87,15 @@ defmodule Pot.Presence do
     fetch(topic, grouped)
   end
 
+  def which_node?(path) do
+    local_node = Phoenix.PubSub.node_name(Pot.PubSub)
+    case Phoenix.Tracker.list(__MODULE__, path) do
+      [] -> :none
+      [{^local_node, _}|_] -> :local
+      [{remote_node, _}|_] -> {:remote, remote_node}
+    end
+  end
+
   defp group(presences) do
     presences
     |> Enum.reverse()

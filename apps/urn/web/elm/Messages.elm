@@ -15,4 +15,6 @@ type Msg
   = OnLocationChange Location
   | DirectoryListing (Set Directory) (Set File)
   | PresenceDiff Diff
+  | DirectoryName String
+  | NewDirectory
   | NoOp

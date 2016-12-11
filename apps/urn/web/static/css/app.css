@@ -39,3 +39,7 @@ body {
   vertical-align: middle;
   padding-right: 0.5em;
 }
+
+.file-upload > button {
+  width: 100%;
+}

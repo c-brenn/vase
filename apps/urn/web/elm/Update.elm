@@ -1,9 +1,11 @@
 module Update exposing (..)
 
-import Models   exposing (Model)
-import Messages exposing (Msg(..))
-import Routing  exposing (parseLocation)
-import Socket   exposing (cd)
+import Models     exposing (Model)
+import Messages   exposing (Msg(..))
+import Routing    exposing (parseLocation)
+import Socket     exposing (cd)
+import Util       exposing ((</>))
+import Navigation exposing (newUrl)
 import Set
 
 update : Msg -> Model -> (Model, Cmd Msg)
@@ -39,4 +41,21 @@ update msg model =
         }
       , Cmd.none
       )
+
+    DirectoryName dir ->
+      ( { model | directoryInput = dir }, Cmd.none )
+
+    NewDirectory ->
+      let
+          dir = model.directoryInput
+      in
+          if String.isEmpty dir then
+            ( model, Cmd.none )
+          else
+            (
+              { model | directoryInput = "" }
+              , newUrl ("#" ++ model.cwd </> dir)
+              )
+
+
 

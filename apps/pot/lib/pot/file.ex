@@ -11,11 +11,20 @@ defmodule Pot.File do
   end
 
   def write(path) do
-    {:ok, pid} = Pot.File.Supervisor.track_file(path)
+    case which_node?(path) do
+      {:remote, remote_node} ->
+        {:write_on_remote, remote_node}
 
-    dir = Path.dirname(path)
-    base = Path.basename(path)
-    register_presences(pid, dir, base, :file)
+      _ ->
+        # TODO check if file already exists -- don't create two processes
+        {:ok, pid} = Pot.File.Supervisor.track_file(path)
+        register_presences(pid, path)
+        {:ok, pid}
+    end
+  end
+
+  def which_node?(path) do
+    Pot.Presence.which_node?(path)
   end
 
   def delete(path) do
@@ -36,6 +45,16 @@ defmodule Pot.File do
   each directory in the path, so that directories disappear when empty (it also
   greatly simplifies `ls` et. al.)
   """
+  def register_presences(pid, path) do
+    node = Phoenix.PubSub.node_name(Pot.PubSub)
+
+    Pot.Presence.track(pid, path, node, %{type: :file})
+
+    dir = Path.dirname(path)
+    base = Path.basename(path)
+    register_presences(pid, dir, base, :file)
+  end
+  def register_presences(_, "", _, _), do: :ok
   def register_presences(pid, "/", base, type) do
     Pot.Presence.track(pid, "/", base, %{type: type})
   end
@@ -45,5 +64,10 @@ defmodule Pot.File do
     new_dir = Path.dirname(dir)
     new_base = Path.basename(dir)
     register_presences(pid, new_dir, new_base, :directory)
+  end
+
+  def add_fake_files(prefix \\ "home") do
+    write "/#{prefix}/#{prefix}.txt"
+    write "/#{prefix}.txt"
   end
 end

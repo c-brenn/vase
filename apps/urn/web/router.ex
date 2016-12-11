@@ -10,13 +10,19 @@ defmodule Urn.Router do
   end
 
   pipeline :api do
-    plug :accepts, ["json"]
+    plug :accepts, ["json", "multipart"]
   end
 
   scope "/", Urn do
     pipe_through :browser # Use the default browser stack
 
     get "/*path", PageController, :index
+  end
+
+  scope "/api", Urn do
+    pipe_through :api
+
+    post "/files/create", FileController, :create
   end
 
   # Other scopes may use custom stacks.
