@@ -24,8 +24,8 @@ update msg model =
 
     DirectoryListing directories files ->
       ( { model
-        | directories = directories
-        , files = files
+        | directories = directories |> List.sort
+        , files = files |> List.sort
         , loading = False
         }
       , Cmd.none
