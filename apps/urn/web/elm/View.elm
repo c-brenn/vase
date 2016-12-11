@@ -7,6 +7,7 @@ import Models          exposing (Model)
 import Routing         exposing (Route)
 import Color           exposing (Color, darkGrey)
 import FontAwesome     as FA
+import Set
 
 view : Model -> Html Msg
 view model =
@@ -77,7 +78,7 @@ directoriesView model =
           [ class "block box-item" ]
           [ a [ href ("#" ++ model.cwd </> dir) ] [ folderIcon, text dir ] ]
   in
-    List.map directoryView model.directories
+    List.map directoryView (model.directories |> Set.toList)
 
 filesView : Model -> List (Html Msg)
 filesView model =
@@ -87,7 +88,7 @@ filesView model =
           [ class "block box-item" ]
           [ span [] [ fileIcon, text file ] ]
   in
-      List.map fileView model.files
+      List.map fileView (model.files |> Set.toList)
 
 folderIcon =
   makeIcon FA.folder
