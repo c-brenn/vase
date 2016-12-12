@@ -1,7 +1,8 @@
 module Messages exposing (..)
 
 import Navigation exposing (Location)
-import Models     exposing (File, Directory)
+import File       exposing (File)
+import Directory  exposing (Directory)
 import Set        exposing (Set(..))
 
 type alias Diff =

@@ -11,6 +11,10 @@ import Util            exposing ((</>))
 import FontAwesome     as FA
 import Set
 
+
+import File
+import Directory
+
 view : Model -> Html Msg
 view model =
   let
@@ -63,51 +67,23 @@ navigatorSeparator =
 directoryListing : Model -> Html Msg
 directoryListing model =
   let
-      directories =
-        directoriesView model
-
-      files =
-        filesView model
-
       header =
         div [ class "block box-header" ] [ text "File Navigation" ]
   in
       div
         [ class "box" ]
-        (header :: directories ++ files)
+        (header
+        :: directoriesView model
+        ++ filesView model
+        )
 
 directoriesView : Model -> List (Html Msg)
 directoriesView model =
-  let
-      directoryView dir =
-        div
-          [ class "block box-item" ]
-          [ a [ href ("#" ++ model.cwd </> dir) ] [ folderIcon, text dir ] ]
-  in
-    List.map directoryView (model.directories |> Set.toList)
+    List.map (Directory.view model.cwd) (model.directories |> Set.toList)
 
 filesView : Model -> List (Html Msg)
 filesView model =
-  let
-      fileView file =
-        div
-          [ class "block box-item" ]
-          [ span [] [ fileIcon, text file ] ]
-  in
-      List.map fileView (model.files |> Set.toList)
-
-folderIcon =
-  makeIcon FA.folder
-
-fileIcon =
-  makeIcon FA.file_text_o
-
-makeIcon : (Color -> Int -> Html msg) -> Html msg
-makeIcon icon =
-  span
-    [ class "icon"]
-    [ icon darkGrey 16 ]
-
+  List.map File.view (model.files |> Set.toList)
 
 inputs : Model -> Html Msg
 inputs model =

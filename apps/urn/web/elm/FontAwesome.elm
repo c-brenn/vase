@@ -1,17 +1,17 @@
-module FontAwesome exposing
-  ( home
-  , file_image_o, file_text_o
-  , folder, archive
-  , play, pause
-  )
-  -- where
+module FontAwesome exposing (..)
 
-import Color exposing (Color, toRgb)
+import Color exposing (Color, toRgb, darkGrey)
 import Html exposing (Html)
+import Html.Attributes exposing (class)
 import Svg exposing (..)
 import Svg.Attributes exposing (width, height, viewBox, d, fill)
 
 
+makeIcon : (Color -> Int -> Html msg) -> Html msg
+makeIcon icon =
+  Html.span
+    [ class "icon"]
+    [ icon darkGrey 16 ]
 
 -- ICONS
 
@@ -35,24 +35,16 @@ folder : Color -> Int -> Html msg
 folder =
   icon "M1728 608v704q0 92-66 158t-158 66h-1216q-92 0-158-66t-66-158v-960q0-92 66-158t158-66h320q92 0 158 66t66 158v32h672q92 0 158 66t66 158z"
 
+download : Color -> Int -> Html msg
+download =
+  rotatedIcon "M1280 192q0 26 -19 45t-45 19t-45 -19t-19 -45t19 -45t45 -19t45 19t19 45zM1536 192q0 26 -19 45t-45 19t-45 -19t-19 -45t19 -45t45 -19t45 19t19 45zM1664 416v-320q0 -40 -28 -68t-68 -28h-1472q-40 0 -68 28t-28 68v320q0 40 28 68t68 28h465l135 -136 q58 -56 136 -56t136 56l136 136h464q40 0 68 -28t28 -68zM1339 985q17 -41 -14 -70l-448 -448q-18 -19 -45 -19t-45 19l-448 448q-31 29 -14 70q17 39 59 39h256v448q0 26 19 45t45 19h256q26 0 45 -19t19 -45v-448h256q42 0 59 -39z"
 
-archive : Color -> Int -> Html msg
-archive =
-  icon "M1088 832q0-26-19-45t-45-19h-256q-26 0-45 19t-19 45 19 45 45 19h256q26 0 45-19t19-45zm576-192v960q0 26-19 45t-45 19h-1408q-26 0-45-19t-19-45v-960q0-26 19-45t45-19h1408q26 0 45 19t19 45zm64-448v256q0 26-19 45t-45 19h-1536q-26 0-45-19t-19-45v-256q0-26 19-45t45-19h1536q26 0 45 19t19 45z"
-
-
-play : Color -> Int -> Html msg
-play =
-  icon "M1576 927l-1328 738q-23 13-39.5 3t-16.5-36v-1472q0-26 16.5-36t39.5 3l1328 738q23 13 23 31t-23 31z"
-
-
-pause : Color -> Int -> Html msg
-pause =
-  icon "M1664 192v1408q0 26-19 45t-45 19h-512q-26 0-45-19t-19-45v-1408q0-26 19-45t45-19h512q26 0 45 19t19 45zm-896 0v1408q0 26-19 45t-45 19h-512q-26 0-45-19t-19-45v-1408q0-26 19-45t45-19h512q26 0 45 19t19 45z"
+delete : Color -> Int -> Html msg
+delete =
+  scaledIcon "M1216 576v128q0 26 -19 45t-45 19h-768q-26 0 -45 -19t-19 -45v-128q0 -26 19 -45t45 -19h768q26 0 45 19t19 45zM1536 640q0 -209 -103 -385.5t-279.5 -279.5t-385.5 -103t-385.5 103t-279.5 279.5t-103 385.5t103 385.5t279.5 279.5t385.5 103t385.5 -103t279.5 -279.5 t103 -385.5z"
 
 
 -- HELPERS
-
 
 icon : String -> Color -> Int -> Html msg
 icon pathString color size =
@@ -68,6 +60,33 @@ icon pathString color size =
       [ path [ fill (fromColor color), d pathString ] []
       ]
 
+rotatedIcon : String -> Color -> Int -> Html msg
+rotatedIcon pathString color size =
+  let
+    sizeString =
+      toString size
+  in
+    svg
+      [ width sizeString
+      , height sizeString
+      , viewBox "0 0 1792 1792"
+      ]
+      [ path [ fill (fromColor color), d pathString, Svg.Attributes.transform("rotate(180, 896, 896)")] []
+      ]
+
+scaledIcon : String -> Color -> Int -> Html msg
+scaledIcon pathString color size =
+  let
+    sizeString =
+      toString size
+  in
+    svg
+      [ width sizeString
+      , height sizeString
+      , viewBox "0 0 1792 1792"
+      ]
+      [ path [ fill (fromColor color), d pathString, Svg.Attributes.transform("translate(288, 288)")] []
+      ]
 
 fromColor : Color -> String
 fromColor color =

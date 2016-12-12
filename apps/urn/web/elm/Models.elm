@@ -1,10 +1,10 @@
 module Models exposing (..)
 
 import Routing
-import Set exposing(Set(..))
+import Set       exposing (Set(..))
+import File      exposing (File)
+import Directory exposing (Directory)
 
-type alias File      = String
-type alias Directory = String
 
 type alias Model =
   { cwd         : Routing.Route
