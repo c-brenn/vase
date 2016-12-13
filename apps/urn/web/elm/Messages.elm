@@ -1,9 +1,10 @@
 module Messages exposing (..)
 
 import Navigation exposing (Location)
-import File       exposing (File)
-import Directory  exposing (Directory)
 import Set        exposing (Set(..))
+
+type alias File = String
+type alias Directory = String
 
 type alias Diff =
   { added_directories   : Set Directory
@@ -18,4 +19,5 @@ type Msg
   | PresenceDiff Diff
   | DirectoryName String
   | NewDirectory
+  | Delete File
   | NoOp

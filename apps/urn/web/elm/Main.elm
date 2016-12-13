@@ -14,7 +14,7 @@ init location =
         currentRoute =
           Routing.parseLocation location
     in
-        ( initialModel currentRoute, cd currentRoute )
+        ( initialModel currentRoute location.host, cd currentRoute )
 
 subscriptions : Model -> Sub Msg
 subscriptions model =

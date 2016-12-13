@@ -14,12 +14,12 @@ defmodule Pot.File do
     case which_node?(path) do
       {:remote, remote_node} ->
         {:write_on_remote, remote_node}
-
-      _ ->
-        # TODO check if file already exists -- don't create two processes
+      :none ->
         {:ok, pid} = Pot.File.Supervisor.track_file(path)
         register_presences(pid, path)
         {:ok, pid}
+      :local ->
+        # overwrite file contents
     end
   end
 

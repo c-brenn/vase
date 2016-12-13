@@ -43,3 +43,8 @@ body {
 .file-upload > button {
   width: 100%;
 }
+
+.left { float: left; }
+.right { float: right; }
+
+.elm-button { cursor: pointer; }

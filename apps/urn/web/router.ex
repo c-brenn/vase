@@ -16,13 +16,15 @@ defmodule Urn.Router do
   scope "/", Urn do
     pipe_through :browser # Use the default browser stack
 
-    get "/*path", PageController, :index
+    get "/", PageController, :index
   end
 
   scope "/api", Urn do
     pipe_through :api
 
-    post "/files/create", FileController, :create
+    get  "/files/whereis",  FileController, :whereis
+    post "/files/create",   FileController, :create
+    get  "/files/delete",   FileController, :delete
   end
 
   # Other scopes may use custom stacks.

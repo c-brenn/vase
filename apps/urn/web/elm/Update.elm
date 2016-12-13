@@ -6,6 +6,7 @@ import Routing    exposing (parseLocation)
 import Socket     exposing (cd)
 import Util       exposing ((</>))
 import Navigation exposing (newUrl)
+import FileServer
 import Set
 
 update : Msg -> Model -> (Model, Cmd Msg)
@@ -57,5 +58,9 @@ update msg model =
               , newUrl ("#" ++ model.cwd </> dir)
               )
 
-
-
+    Delete file ->
+      let
+          fullPath =
+            model.cwd </> file
+      in
+          ( model, FileServer.delete model.host fullPath )

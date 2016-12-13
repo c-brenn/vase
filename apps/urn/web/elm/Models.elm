@@ -12,13 +12,15 @@ type alias Model =
   , directories : Set Directory
   , directoryInput : String
   , loading     : Bool
+  , host        : String
   }
 
-initialModel : Routing.Route -> Model
-initialModel route =
+initialModel : Routing.Route -> String -> Model
+initialModel route host =
     { cwd = route
     , files = Set.empty
     , directories = Set.empty
     , directoryInput = ""
     , loading = True
+    , host = host
     }
