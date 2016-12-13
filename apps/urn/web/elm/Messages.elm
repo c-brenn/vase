@@ -18,6 +18,9 @@ type Msg
   | DirectoryListing (Set Directory) (Set File)
   | PresenceDiff Diff
   | DirectoryName String
+  | FileName String
   | NewDirectory
+  | Upload
+  | Submit String String
   | Delete File
   | NoOp

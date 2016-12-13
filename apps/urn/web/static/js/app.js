@@ -15,6 +15,20 @@ elmApp.ports.cd.subscribe(directory => {
   initializeChannel(channel)
 })
 
+elmApp.ports.submitUploadForm.subscribe(([host, path]) => {
+  let form = document.getElementById('file-upload')
+  let file = document.getElementById('file-upload-input').files[0]
+
+  var formData = new FormData(form)
+
+  formData.append("upload", file)
+  formData.append("path", path)
+
+  var request = new XMLHttpRequest();
+  request.open("POST", `${host}/api/files/create`, true);
+  request.send(formData);
+})
+
 let initializeChannel = channel => {
   channel.on("ls", dir_contents => {
     elmApp.ports.rawDirectoryEvents.send(

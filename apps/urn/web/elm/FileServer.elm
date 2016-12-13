@@ -1,4 +1,4 @@
-module FileServer exposing (..)
+port module FileServer exposing (..)
 
 import Http
 import Task exposing (..)
@@ -35,3 +35,18 @@ remoteDelete path remote =
   in
       Http.get url (JD.succeed "gr8")
         |> Http.toTask
+
+upload : String -> String -> Cmd Msg
+upload host path =
+  let
+      resultDecoder result =
+        case result of
+          Ok remote ->
+            Submit remote path
+          _ -> NoOp
+  in
+      Task.attempt resultDecoder (whereIs host path)
+
+
+port submitUploadForm :  (String, String) -> Cmd msg
+

@@ -11,6 +11,7 @@ type alias Model =
   , files       : Set File
   , directories : Set Directory
   , directoryInput : String
+  , fileInput   : String
   , loading     : Bool
   , host        : String
   }
@@ -21,6 +22,7 @@ initialModel route host =
     , files = Set.empty
     , directories = Set.empty
     , directoryInput = ""
+    , fileInput = ""
     , loading = True
     , host = host
     }

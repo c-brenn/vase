@@ -46,6 +46,9 @@ update msg model =
     DirectoryName dir ->
       ( { model | directoryInput = dir }, Cmd.none )
 
+    FileName file ->
+      ( { model | fileInput = file }, Cmd.none )
+
     NewDirectory ->
       let
           dir = model.directoryInput
@@ -56,7 +59,20 @@ update msg model =
             (
               { model | directoryInput = "" }
               , newUrl ("#" ++ model.cwd </> dir)
-              )
+            )
+
+    Upload ->
+      let
+          fullPath =
+            model.cwd </> model.fileInput
+      in
+          if String.isEmpty model.fileInput then
+            ( model, Cmd.none )
+          else
+            ( model , FileServer.upload model.host fullPath )
+
+    Submit host path ->
+      ({ model| fileInput = "" }, FileServer.submitUploadForm (host, path))
 
     Delete file ->
       let

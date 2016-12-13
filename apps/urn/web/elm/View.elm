@@ -107,10 +107,10 @@ newDirInput model =
 
 fileUploadForm : Model -> Html Msg
 fileUploadForm model =
-  Html.form
-    [ class "file-upload", method "post", action "/api/files/create", enctype "multipart/form-data"]
-    [ input [ type_ "file", name "upload" ] []
-    , input [ type_ "hidden", value model.cwd, name "path" ] []
-    , button [ class "btn btn-primary", type_ "submit" ] [ text "upload" ]
+  div
+    [ id "file-upload-form", enctype "multipart/form-data"]
+    [ input [ type_ "file", id "file-upload-input"] []
+    , input [ type_ "text", value model.fileInput, onInput FileName ] []
+    , button [ class "btn btn-primary", onClick Upload ] [ text "upload" ]
     ]
 

@@ -1,16 +1,15 @@
 defmodule Urn.FileController do
   use Urn.Web, :controller
 
-  def create(conn, %{"path" => path, "upload" => upload}) do
-    full_path = Path.join([path, upload.filename])
-    case Pot.File.write(full_path) do
+  def create(conn, %{"path" => path, "upload" => _upload}) do
+    case Pot.File.write(path) do
       {:write_on_remote, node} ->
         conn
         |> put_status(422)
         |> json(%{error: "wrong node", node: node})
       {:ok, _} ->
         conn
-        |> redirect(to: "/#" <> path)
+        |> text("gr8")
     end
   end
 
