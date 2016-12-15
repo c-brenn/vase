@@ -10,6 +10,7 @@ defmodule Urn do
     children = [
       # Start the endpoint when the application starts
       supervisor(Urn.Endpoint, []),
+      worker(Urn.Node, [])
       # Start your own worker by calling: Urn.Worker.start_link(arg1, arg2, arg3)
       # worker(Urn.Worker, [arg1, arg2, arg3]),
     ]

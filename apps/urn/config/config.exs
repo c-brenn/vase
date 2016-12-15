@@ -11,7 +11,8 @@ config :urn, Urn.Endpoint,
   secret_key_base: "t4/+TAKyZUsr+Xx0OGAar3Z49hchJnS+UT9pAf3JBW+ooVWn4wO8po/pBDuQCl5s",
   render_errors: [view: Urn.ErrorView, accepts: ~w(html json)],
   pubsub: [name: Urn.PubSub,
-           adapter: Phoenix.PubSub.PG2]
+           adapter: Phoenix.PubSub.PG2],
+  server: true
 
 # Configures Elixir's Logger
 config :logger, :console,

@@ -19,16 +19,11 @@ defmodule Urn.FileController do
         {:remote, remote_node} ->
           remote_node
         _ ->
-          Phoenix.PubSub.node_name(Pot.PubSub)
+          Node.self
       end
 
-    [port, host] =
-      node
-      |> Atom.to_string
-      |> String.split("@")
-
     conn
-    |> json(%{host: host, port: port})
+    |> json(Urn.Node.http_info(node))
   end
 
   def delete(conn, %{"file" => path}) do

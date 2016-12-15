@@ -39,7 +39,7 @@ defmodule Pot.Presence do
 
   def handle_diff(diff, state) do
     Task.Supervisor.start_child(@task_supervisor, fn ->
-      for {directory, {additions, potential_deletions}} <- diff do
+      for {directory, {additions, potential_deletions}} <- diff, not is_tuple(directory) do
 
         still_present = list(directory)
         potential_deletions = group(potential_deletions)
