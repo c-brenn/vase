@@ -48,7 +48,7 @@ defmodule Pot.File do
   def register_presences(pid, path) do
     node = Phoenix.PubSub.node_name(Pot.PubSub)
 
-    Pot.Presence.track(pid, path, node, %{type: :file})
+    Pot.Presence.track(pid, {:file, path}, node, %{})
 
     dir = Path.dirname(path)
     base = Path.basename(path)
@@ -56,18 +56,13 @@ defmodule Pot.File do
   end
   def register_presences(_, "", _, _), do: :ok
   def register_presences(pid, "/", base, type) do
-    Pot.Presence.track(pid, "/", base, %{type: type})
+    Pot.Presence.track(pid, "/", {type, base}, %{})
   end
   def register_presences(pid, dir, base, type) do
-    Pot.Presence.track(pid, dir, base, %{type: type})
+    Pot.Presence.track(pid, dir, {type, base}, %{})
 
     new_dir = Path.dirname(dir)
     new_base = Path.basename(dir)
     register_presences(pid, new_dir, new_base, :directory)
-  end
-
-  def add_fake_files(prefix \\ "home") do
-    write "/#{prefix}/#{prefix}.txt"
-    write "/#{prefix}.txt"
   end
 end

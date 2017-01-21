@@ -89,7 +89,7 @@ defmodule Pot.Presence do
 
   def which_node?(path) do
     local_node = Phoenix.PubSub.node_name(Pot.PubSub)
-    case Phoenix.Tracker.list(__MODULE__, path) do
+    case Phoenix.Tracker.list(__MODULE__, {:file, path}) do
       [] -> :none
       [{^local_node, _}|_] -> :local
       [{remote_node, _}|_] -> {:remote, remote_node}
@@ -98,13 +98,12 @@ defmodule Pot.Presence do
 
   defp group(presences) do
     presences
-    |> Enum.reverse()
-    |> Enum.reduce(%{files: MapSet.new, directories: MapSet.new}, fn {key, meta}, acc ->
-      case meta.type do
+    |> Enum.reduce(%{files: MapSet.new, directories: MapSet.new}, fn {{type, path}, _}, acc ->
+      case type do
         :file ->
-          %{acc| files: MapSet.put(acc.files, key)}
+          %{acc| files: MapSet.put(acc.files, path)}
         :directory ->
-          %{acc| directories: MapSet.put(acc.directories, key)}
+          %{acc| directories: MapSet.put(acc.directories, path)}
       end
     end)
   end
