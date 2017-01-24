@@ -49,7 +49,11 @@ defmodule Pot.Presence do
             potential_deletions.directories,
             still_present.directories
           ),
-          files: potential_deletions.files
+          files: MapSet.difference(
+            potential_deletions.files,
+            still_present.files
+          ),
+
         }
 
         Urn.DirectoriesChannel.broadcast_diff(

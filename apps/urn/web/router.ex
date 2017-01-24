@@ -22,9 +22,10 @@ defmodule Urn.Router do
   scope "/api", Urn do
     pipe_through :api
 
-    get  "/files/whereis",  FileController, :whereis
-    post "/files/create",   FileController, :create
-    get  "/files/delete",   FileController, :delete
+    get  "/files/whereis",   FileController, :whereis
+    post "/files/create",    FileController, :create
+    post "/files/replicate", FileController, :replicate
+    get  "/files/delete",    FileController, :delete
   end
 
   # Other scopes may use custom stacks.

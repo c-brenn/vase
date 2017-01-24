@@ -17,10 +17,33 @@ defmodule Pot.File do
       :none ->
         {:ok, pid} = Pot.File.Supervisor.track_file(path)
         register_presences(pid, path)
+        replicate_remotely(path)
         {:ok, pid}
       :local ->
         # overwrite file contents
+        # delete replicas
+        # replicate again
     end
+  end
+
+  def replicate_remotely(path) do
+    num_replicas = Application.get_env(:pot, :replicas, 1)
+    replicas = Enum.take_random(Node.list, num_replicas)
+
+    for replica <- replicas do
+      Task.start(fn ->
+        %{host: host, port: port} = Urn.Node.http_info(replica)
+        uri = host <> ":" <> port <> "/api/files/replicate"
+
+        HTTPoison.post(uri, {:form, [{:path, path}]})
+      end)
+    end
+  end
+
+  def replicate_locally(path) do
+    delete(path)
+    {:ok, pid} = Pot.File.Supervisor.track_file(path)
+    register_presences(pid, path)
   end
 
   def which_node?(path) do

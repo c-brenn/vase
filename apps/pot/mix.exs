@@ -18,7 +18,7 @@ defmodule Pot.Mixfile do
   #
   # Type "mix help compile.app" for more information
   def application do
-    [applications: [:logger, :phoenix_pubsub, :registry],
+    [applications: [:logger, :phoenix_pubsub, :registry, :httpoison],
      mod: {Pot, []}]
   end
 
@@ -38,7 +38,8 @@ defmodule Pot.Mixfile do
   defp deps do
     [
       {:phoenix_pubsub, "~> 1.0"},
-      {:registry, git: "https://github.com/elixir-lang/registry.git"}
+      {:registry, git: "https://github.com/elixir-lang/registry.git"},
+      {:httpoison, "~> 0.10.0"}
     ]
   end
 end

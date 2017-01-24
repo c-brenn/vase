@@ -14,7 +14,7 @@ defmodule Urn.Node do
       Application.get_env(:urn, Urn.Endpoint)
         |> get_in([:http, :port])
 
-    meta = %{host: host, port: port}
+    meta = %{host: host, port: "#{port}"}
     node = Node.self
 
     Pot.Presence.track(self(), {:node, node}, node, meta)
@@ -26,6 +26,6 @@ defmodule Urn.Node do
     [{^node_name, %{host: host, port: port}}] =
       Phoenix.Tracker.list(Pot.Presence, {:node, node_name})
 
-    %{host: host, port: "#{port}"}
+    %{host: host, port: port}
   end
 end

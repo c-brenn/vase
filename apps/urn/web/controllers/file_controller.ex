@@ -13,6 +13,11 @@ defmodule Urn.FileController do
     end
   end
 
+  def replicate(conn,  %{"path" => path}) do
+    Pot.File.replicate_locally(path)
+    conn |> text("success")
+  end
+
   def whereis(conn, %{"file" => path}) do
     node =
       case Pot.File.which_node?(path) do
