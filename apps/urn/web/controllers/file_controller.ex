@@ -3,18 +3,19 @@ defmodule Urn.FileController do
 
   def create(conn, %{"path" => path, "upload" => upload}) do
     case Pot.File.write(path, upload.path) do
-      {:write_on_remote, node} ->
+      {:error, :remote_file, node} ->
         conn
         |> put_status(422)
         |> json(%{error: "wrong node", node: node})
-      {:ok, _} ->
+      :ok ->
         conn
         |> text("gr8")
     end
   end
 
   def replicate(conn,  %{"path" => path, "hash" => hash}) do
-    Pot.File.replicate_locally(path, hash)
+    Pot.File.Local.delete(path)
+    Pot.File.Local.replicate(path, hash)
     conn |> text("success")
   end
 

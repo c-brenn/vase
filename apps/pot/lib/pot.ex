@@ -8,7 +8,8 @@ defmodule Pot do
       supervisor(Phoenix.PubSub.PG2, [Pot.PubSub, []]),
       supervisor(Pot.Presence, []),
       supervisor(Pot.File.Supervisor, []),
-      supervisor(Registry, [:unique, Pot.File.Registry])
+      supervisor(Registry, [:unique, Pot.File.Registry]),
+      worker(Pot.File.Remote, [])
     ]
 
     opts = [strategy: :one_for_one, name: Pot.Supervisor]
