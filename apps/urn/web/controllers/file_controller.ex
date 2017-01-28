@@ -1,8 +1,8 @@
 defmodule Urn.FileController do
   use Urn.Web, :controller
 
-  def create(conn, %{"path" => path, "upload" => _upload}) do
-    case Pot.File.write(path) do
+  def create(conn, %{"path" => path, "upload" => upload}) do
+    case Pot.File.write(path, upload.path) do
       {:write_on_remote, node} ->
         conn
         |> put_status(422)
@@ -13,8 +13,8 @@ defmodule Urn.FileController do
     end
   end
 
-  def replicate(conn,  %{"path" => path}) do
-    Pot.File.replicate_locally(path)
+  def replicate(conn,  %{"path" => path, "hash" => hash}) do
+    Pot.File.replicate_locally(path, hash)
     conn |> text("success")
   end
 

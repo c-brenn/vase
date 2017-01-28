@@ -10,14 +10,15 @@ defmodule Pot.File do
     {:ok, path}
   end
 
-  def write(path) do
+  def write(path, temp_file) do
     case which_node?(path) do
       {:remote, remote_node} ->
         {:write_on_remote, remote_node}
       :none ->
         {:ok, pid} = Pot.File.Supervisor.track_file(path)
-        register_presences(pid, path)
-        replicate_remotely(path)
+        file_hash = hash(temp_file)
+        register_presences(pid, path, file_hash)
+        replicate_remotely(path, file_hash)
         {:ok, pid}
       :local ->
         # overwrite file contents
@@ -26,7 +27,7 @@ defmodule Pot.File do
     end
   end
 
-  def replicate_remotely(path) do
+  def replicate_remotely(path, hash) do
     num_replicas = Application.get_env(:pot, :replicas, 1)
     replicas = Enum.take_random(Node.list, num_replicas)
 
@@ -35,15 +36,15 @@ defmodule Pot.File do
         %{host: host, port: port} = Urn.Node.http_info(replica)
         uri = host <> ":" <> port <> "/api/files/replicate"
 
-        HTTPoison.post(uri, {:form, [{:path, path}]})
+        HTTPoison.post(uri, {:form, [{:path, path, hash: hash}]})
       end)
     end
   end
 
-  def replicate_locally(path) do
+  def replicate_locally(path, hash) do
     delete(path)
     {:ok, pid} = Pot.File.Supervisor.track_file(path)
-    register_presences(pid, path)
+    register_presences(pid, path, hash)
   end
 
   def which_node?(path) do
@@ -58,6 +59,14 @@ defmodule Pot.File do
     end)
   end
 
+  def hash(temp_file) do
+    File.stream!(temp_file, [], 2048)
+    |> Enum.reduce(:crypto.hash_init(:md5), fn (line, acc) ->
+      :crypto.hash_update(acc, line)
+    end)
+    |> :crypto.hash_final
+  end
+
   @doc """
   Phoenix.Presence is used to track files across the cluster. There is no real
   notion of a directory. Writing a file to given path creates the directories
@@ -68,10 +77,10 @@ defmodule Pot.File do
   each directory in the path, so that directories disappear when empty (it also
   greatly simplifies `ls` et. al.)
   """
-  def register_presences(pid, path) do
+  def register_presences(pid, path, hash) do
     node = Phoenix.PubSub.node_name(Pot.PubSub)
 
-    Pot.Presence.track(pid, {:file, path}, node, %{})
+    Pot.Presence.track(pid, {:file, path}, node, %{hash: hash})
 
     dir = Path.dirname(path)
     base = Path.basename(path)
