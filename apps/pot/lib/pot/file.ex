@@ -21,6 +21,7 @@ defmodule Pot.File do
         replicate_remotely(path, file_hash)
         {:ok, pid}
       :local ->
+        {:ok, nil}
         # overwrite file contents
         # delete replicas
         # replicate again

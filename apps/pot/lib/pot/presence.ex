@@ -95,8 +95,14 @@ defmodule Pot.Presence do
     local_node = Phoenix.PubSub.node_name(Pot.PubSub)
     case Phoenix.Tracker.list(__MODULE__, {:file, path}) do
       [] -> :none
-      [{^local_node, _}|_] -> :local
-      [{remote_node, _}|_] -> {:remote, remote_node}
+      presences ->
+        # resolve any conflicting replicas by choosing the replica with the
+        # maximum hash -> may lead to old files being read while consistency is resolved
+        {node, _} = Enum.max_by(presences, fn ({_, %{hash: hash}}) -> hash end)
+        case node do
+          ^local_node -> :local
+          _ -> {:remote, node}
+        end
     end
   end
 
