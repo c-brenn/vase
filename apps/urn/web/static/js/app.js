@@ -1,10 +1,12 @@
 import "phoenix_html"
 import {Socket} from "phoenix"
 
+const token = document.querySelector('meta[name="urn_token"]').content
+
 const elmDiv = document.getElementById('elm-container')
 const elmApp = Elm.Main.embed(elmDiv);
 
-let socket = new Socket("/socket")
+let socket = new Socket("/socket", {params: {token: token}})
 socket.connect()
 
 let channel = {leave: () => {}}
