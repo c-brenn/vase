@@ -11,13 +11,14 @@ defmodule Urn.Router do
 
   pipeline :api do
     plug :accepts, ["json", "multipart"]
-    plug Urn.Authentication
   end
 
   scope "/", Urn do
     pipe_through :browser # Use the default browser stack
 
     get "/", PageController, :index
+    get "/login", SessionController, :new
+    post "/login", SessionController, :create
   end
 
   scope "/api", Urn do

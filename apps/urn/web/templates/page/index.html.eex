@@ -1,1 +1,2 @@
+<%= tag :meta, name: "urn_token", content: @token %>
 <div id="elm-container"></div>
