@@ -11,6 +11,7 @@ defmodule Urn.Router do
 
   pipeline :api do
     plug :accepts, ["json", "multipart"]
+    plug Urn.Authentication.Headers
   end
 
   scope "/", Urn do

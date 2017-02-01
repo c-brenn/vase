@@ -28,6 +28,7 @@ elmApp.ports.submitUploadForm.subscribe(([host, path]) => {
 
   var request = new XMLHttpRequest();
   request.open("POST", `${host}/api/files/create`, true);
+  request.setRequestHeader("Authentication", "secret")
   request.send(formData);
 })
 

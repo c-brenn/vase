@@ -5,13 +5,25 @@ import Task exposing (..)
 import Json.Decode as JD exposing (at, string)
 import Messages exposing (Msg(..))
 
+get : String -> JD.Decoder value -> Http.Request value
+get url decoder =
+  Http.request
+    { method = "GET"
+    , headers = [Http.header "Authentication" "secret"]
+    , url = url
+    , body = Http.emptyBody
+    , expect = Http.expectJson decoder
+    , timeout = Nothing
+    , withCredentials = False
+    }
+
 whereIs : String -> String -> Task Http.Error String
 whereIs host path =
   let
       url =
         "http://" ++ host ++ "/api/files/whereis" ++"?file=" ++ path
   in
-      Http.get url whereIsDecoder
+      get url whereIsDecoder
         |> Http.toTask
 
 whereIsDecoder : JD.Decoder String
@@ -33,7 +45,7 @@ remoteDelete path remote =
       url =
         remote ++ "/api/files/delete" ++ "?file=" ++ path
   in
-      Http.get url (JD.succeed "gr8")
+      get url (JD.succeed "gr8")
         |> Http.toTask
 
 upload : String -> String -> Cmd Msg
