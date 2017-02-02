@@ -10,7 +10,7 @@ defmodule GateKeeper.Router do
 
   def init(opts), do: opts
 
-  def start_link(_) do
+  def start_link() do
     {:ok, pid} = Plug.Adapters.Cowboy.http(__MODULE__, [], port: @port)
     Logger.info("Gatekeeper listening on port: #{@port}")
     {:ok, pid}
