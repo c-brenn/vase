@@ -1,5 +1,7 @@
 defmodule GateKeeper.Authentication do
   import Plug.Conn
+  import Ecto.Query
+  alias GateKeeper.{User, Repo}
 
   def init(opts), do: opts
 
@@ -15,8 +17,13 @@ defmodule GateKeeper.Authentication do
     |> send_resp(:forbidden, "")
   end
 
-  def authenticate(conn, _username, password) do
-    if password == "secret" do
+  def authenticate(conn, username, password) when is_binary(username) do
+    user = User |> where(username: ^username) |> Repo.one
+    authenticate(conn, user, password)
+  end
+
+  def authenticate(conn, %User{} = user, password) do
+    if User.authenticate(user, password) do
       conn
       |> send_resp(:ok, "")
     else

@@ -16,7 +16,8 @@ defmodule GateKeeper.Mixfile do
         :cowboy,
         :plug,
         :postgrex,
-        :ecto
+        :ecto,
+        :comeonin
      ],
      mod: {GateKeeper, []}]
   end
@@ -26,7 +27,8 @@ defmodule GateKeeper.Mixfile do
       {:cowboy, "~> 1.0.0"},
       {:plug, "~> 1.0"},
       {:postgrex, ">= 0.0.0"},
-      {:ecto, "~> 2.1"}
+      {:ecto, "~> 2.1"},
+      {:comeonin, "~> 3.0"}
     ]
   end
 end

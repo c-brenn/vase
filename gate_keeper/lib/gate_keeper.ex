@@ -6,7 +6,8 @@ defmodule GateKeeper do
     import Supervisor.Spec, warn: false
 
     children = [
-      worker(GateKeeper.Router, [])
+      worker(GateKeeper.Router, []),
+      worker(GateKeeper.Repo, [])
     ]
 
     opts = [strategy: :one_for_one, name: GateKeeper.Supervisor]
