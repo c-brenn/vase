@@ -8,21 +8,29 @@ import Update     exposing (update)
 import View       exposing (view)
 import Socket     exposing (directoryEvents, cd)
 
-init : Location -> ( Model, Cmd Msg )
-init location =
+type alias Flags = { token : String }
+
+init : Flags -> Location -> ( Model, Cmd Msg )
+init flags location =
     let
         currentRoute =
           Routing.parseLocation location
+
+        token =
+          flags.token
+
+        model =
+          initialModel currentRoute location.host token
     in
-        ( initialModel currentRoute location.host, cd currentRoute )
+        ( model, cd currentRoute )
 
 subscriptions : Model -> Sub Msg
 subscriptions model =
   directoryEvents
 
-main : Program Never Model Msg
+main : Program Flags Model Msg
 main =
-    Navigation.program OnLocationChange
+    Navigation.programWithFlags OnLocationChange
         { init = init
         , view = view
         , update = update

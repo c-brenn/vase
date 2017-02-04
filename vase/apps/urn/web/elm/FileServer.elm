@@ -5,11 +5,13 @@ import Task exposing (..)
 import Json.Decode as JD exposing (at, string)
 import Messages exposing (Msg(..))
 
-get : String -> JD.Decoder value -> Http.Request value
-get url decoder =
+type alias Token = String
+
+get : Token -> String -> JD.Decoder value -> Http.Request value
+get token url decoder =
   Http.request
     { method = "GET"
-    , headers = [Http.header "Authentication" "secret"]
+    , headers = [Http.header "Authentication" token]
     , url = url
     , body = Http.emptyBody
     , expect = Http.expectJson decoder
@@ -17,13 +19,13 @@ get url decoder =
     , withCredentials = False
     }
 
-whereIs : String -> String -> Task Http.Error String
-whereIs host path =
+whereIs : Token -> String -> String -> Task Http.Error String
+whereIs token host path =
   let
       url =
         "http://" ++ host ++ "/api/files/whereis" ++"?file=" ++ path
   in
-      get url whereIsDecoder
+      get token url whereIsDecoder
         |> Http.toTask
 
 whereIsDecoder : JD.Decoder String
@@ -33,23 +35,23 @@ whereIsDecoder =
     (at ["port"] string)
 
 
-delete : String -> String -> Cmd Msg
-delete host path =
+delete : Token -> String -> String -> Cmd Msg
+delete token host path =
   Task.attempt (\_ -> NoOp) <|
-    (whereIs host path
-      |> andThen (remoteDelete path))
+    (whereIs token host path
+      |> andThen (remoteDelete token path))
 
-remoteDelete : String -> String -> Task Http.Error String
-remoteDelete path remote =
+remoteDelete : Token -> String -> String -> Task Http.Error String
+remoteDelete token path remote =
   let
       url =
         remote ++ "/api/files/delete" ++ "?file=" ++ path
   in
-      get url (JD.succeed "gr8")
+      get token url (JD.succeed "gr8")
         |> Http.toTask
 
-upload : String -> String -> Cmd Msg
-upload host path =
+upload : Token -> String -> String -> Cmd Msg
+upload token host path =
   let
       resultDecoder result =
         case result of
@@ -57,7 +59,7 @@ upload host path =
             Submit remote path
           _ -> NoOp
   in
-      Task.attempt resultDecoder (whereIs host path)
+      Task.attempt resultDecoder (whereIs token host path)
 
 
 port submitUploadForm :  (String, String) -> Cmd msg

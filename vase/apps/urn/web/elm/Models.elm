@@ -14,10 +14,11 @@ type alias Model =
   , fileInput   : String
   , loading     : Bool
   , host        : String
+  , token       : String
   }
 
-initialModel : Routing.Route -> String -> Model
-initialModel route host =
+initialModel : Routing.Route -> String -> String -> Model
+initialModel route host token =
     { cwd = route
     , files = Set.empty
     , directories = Set.empty
@@ -25,4 +26,5 @@ initialModel route host =
     , fileInput = ""
     , loading = True
     , host = host
+    , token = token
     }

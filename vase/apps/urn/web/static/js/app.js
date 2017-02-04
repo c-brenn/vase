@@ -4,7 +4,7 @@ import {Socket} from "phoenix"
 const token = document.querySelector('meta[name="urn_token"]').content
 
 const elmDiv = document.getElementById('elm-container')
-const elmApp = Elm.Main.embed(elmDiv);
+const elmApp = Elm.Main.embed(elmDiv, {token: token});
 
 let socket = new Socket("/socket", {params: {token: token}})
 socket.connect()
@@ -28,7 +28,7 @@ elmApp.ports.submitUploadForm.subscribe(([host, path]) => {
 
   var request = new XMLHttpRequest();
   request.open("POST", `${host}/api/files/create`, true);
-  request.setRequestHeader("Authentication", "secret")
+  request.setRequestHeader("Authentication", token)
   request.send(formData);
 })
 
