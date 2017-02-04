@@ -27,8 +27,7 @@ elmApp.ports.submitUploadForm.subscribe(([host, path]) => {
   formData.append("path", path)
 
   var request = new XMLHttpRequest();
-  request.open("POST", `${host}/api/files/create`, true);
-  request.setRequestHeader("Authentication", token)
+  request.open("POST", `http://${host}/api/files/create?token=${token}`, true);
   request.send(formData);
 })
 

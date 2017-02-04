@@ -1,4 +1,4 @@
-defmodule Urn.Authentication.Headers do
+defmodule Urn.Authentication.Params do
   import Plug.Conn
   alias Urn.Authentication.Token
 
@@ -15,12 +15,7 @@ defmodule Urn.Authentication.Headers do
     end
   end
 
-  def authenticate(%Plug.Conn{} = conn) do
-    conn
-    |> get_req_header("authentication")
-    |> authenticate()
-  end
-  def authenticate([token]) do
+  def authenticate(%Plug.Conn{params: %{"token" => token}} = conn) do
     Token.authenticate(token)
   end
   def authenticate(_), do: {:error, :forbidden}

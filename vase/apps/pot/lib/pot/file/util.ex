@@ -25,6 +25,17 @@ defmodule Pot.File.Util do
     end
   end
 
+  def read(path) do
+    case which_node?(path) do
+      :local ->
+        Pot.File.Local.read(path)
+      :none ->
+        {:error, :no_such_file}
+      {:remote, remote_node} ->
+        {:error, :remote_file, remote_node}
+    end
+  end
+
   def delete(path) do
     Pot.File.Local.delete(path)
     Pot.File.Remote.delete(path)

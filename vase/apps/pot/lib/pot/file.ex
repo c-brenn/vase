@@ -22,6 +22,10 @@ defmodule Pot.File do
     Pot.File.Util.write(path, file)
   end
 
+  def read(path) do
+    Pot.File.Util.read(path)
+  end
+
   def which_node?(path) do
     Pot.File.Util.which_node?(path)
   end

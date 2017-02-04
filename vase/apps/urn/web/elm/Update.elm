@@ -69,7 +69,7 @@ update msg model =
           if String.isEmpty model.fileInput then
             ( model, Cmd.none )
           else
-            ( model , FileServer.upload model.token model.host fullPath )
+            ( model , FileServer.upload  model.host fullPath )
 
     Submit host path ->
       ({ model| fileInput = "" }, FileServer.submitUploadForm (host, path))

@@ -83,7 +83,7 @@ directoriesView model =
 
 filesView : Model -> List (Html Msg)
 filesView model =
-  List.map File.view (model.files |> Set.toList)
+  List.map (File.view model.cwd model.token) (model.files |> Set.toList)
 
 inputs : Model -> Html Msg
 inputs model =

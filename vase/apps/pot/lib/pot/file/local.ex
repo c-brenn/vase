@@ -1,5 +1,6 @@
 defmodule Pot.File.Local do
   alias Pot.Repo
+  import Ecto.Query, only: [from: 2]
 
   def replicate(path, file, hash) do
     {:ok, record} = persist(file, path)
@@ -15,6 +16,15 @@ defmodule Pot.File.Local do
         GenServer.cast(pid, :delete)
       end
     end)
+  end
+
+  def read(path) do
+    query = from Pot.File,
+              where: [path: ^path],
+              select: [:path, :contents]
+    [file] = Repo.all(query)
+
+    {:ok, file.contents}
   end
 
   defp persist(file, path) do

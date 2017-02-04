@@ -5,11 +5,27 @@ defmodule Urn.FileController do
     case Pot.File.write(path, upload.path) do
       {:error, :remote_file, node} ->
         conn
-        |> put_status(422)
-        |> json(%{error: "wrong node", node: node})
+        |> redirect(external: remote_url(conn, node))
       :ok ->
         conn
-        |> text("gr8")
+        |> send_resp(200, "")
+    end
+  end
+
+  def read(conn, %{"file" => path}) do
+    case Pot.File.read(path) do
+      {:ok, contents} ->
+        file_name = Path.basename(path)
+        conn
+        |> put_resp_content_type("application/octet-stream")
+        |> put_resp_header("content-disposition", "attachment; filename=\"#{file_name}\"")
+        |> send_resp(200, contents)
+      {:error, :remote_file, node} ->
+        conn
+        |> redirect(external: remote_url(conn, node))
+      _ ->
+        conn
+        |> send_resp(404, "file not found")
     end
   end
 
@@ -21,23 +37,20 @@ defmodule Urn.FileController do
     conn |> text("success")
   end
 
-  def whereis(conn, %{"file" => path}) do
-    node =
-      case Pot.File.which_node?(path) do
-        {:remote, remote_node} ->
-          remote_node
-        _ ->
-          Node.self
-      end
-
-    conn
-    |> json(Urn.Node.http_info(node))
+  def delete(conn, %{"file" => path}) do
+    case Pot.File.which_node?(path) do
+      :local ->
+        Pot.File.delete(path)
+        conn
+        |> send_resp(200, "")
+      {:remote, node} ->
+        conn
+        |> redirect(external: remote_url(conn, node))
+    end
   end
 
-  def delete(conn, %{"file" => path}) do
-    Pot.File.delete(path)
-    conn
-    |> put_status(200)
-    |> text("gr8")
+  defp remote_url(conn, node) do
+    %{host: host, port: port} = Urn.Node.http_info(node)
+    "http://#{host}:#{port}" <> conn.request_path <> "?" <> conn.query_string
   end
 end

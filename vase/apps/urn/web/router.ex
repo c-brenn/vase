@@ -11,7 +11,7 @@ defmodule Urn.Router do
 
   pipeline :api do
     plug :accepts, ["json", "multipart"]
-    plug Urn.Authentication.Headers
+    plug Urn.Authentication.Params
   end
 
   scope "/", Urn do
@@ -27,6 +27,7 @@ defmodule Urn.Router do
 
     get  "/files/whereis",   FileController, :whereis
     post "/files/create",    FileController, :create
+    get  "/files/read",      FileController, :read
     post "/files/replicate", FileController, :replicate
     get  "/files/delete",    FileController, :delete
   end
