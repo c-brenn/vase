@@ -12,10 +12,10 @@ defmodule Pot.File.Remote do
     GenServer.start_link(__MODULE__, [], name: @name)
   end
 
-  def replicate(path, hash) do
+  def replicate(path, file, hash) do
     replicas = choose_replicas
     for replica <- replicas do
-      do_replicate(replica, path, hash)
+      do_replicate(replica, path, file, hash)
     end
   end
 
@@ -24,7 +24,7 @@ defmodule Pot.File.Remote do
     Enum.take_random(Node.list, num_replicas)
   end
 
-  defp do_replicate(replica, path, hash) do
+  defp do_replicate(replica, path, _file, hash) do
     Task.start(fn ->
       %{host: host, port: port} = Urn.Node.http_info(replica)
       uri = host <> ":" <> port <> "/api/files/replicate"

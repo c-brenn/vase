@@ -11,38 +11,14 @@ defmodule Pot.File do
   end
 
   def write(path, temp_file) do
-    case which_node?(path) do
-      {:remote, remote_node} ->
-        {:error, :remote_file, remote_node}
-      :none ->
-        hash = hash(temp_file)
-        Pot.File.Local.replicate(path, hash)
-        Pot.File.Remote.replicate(path, hash)
-        :ok
-      :local ->
-        # overwrite file contents
-        hash = hash(temp_file)
-        delete(path)
-        Pot.File.Local.replicate(path, hash)
-        Pot.File.Remote.replicate(path, hash)
-        :ok
-    end
+    Pot.File.Util.write(path, temp_file)
   end
 
   def which_node?(path) do
-    Pot.Presence.which_node?(path)
+    Pot.File.Util.which_node?(path)
   end
 
   def delete(path) do
-    Pot.File.Local.delete(path)
-    Pot.File.Remote.delete(path)
-  end
-
-  def hash(temp_file) do
-    File.stream!(temp_file, [], 2048)
-    |> Enum.reduce(:crypto.hash_init(:md5), fn (line, acc) ->
-      :crypto.hash_update(acc, line)
-    end)
-    |> :crypto.hash_final
+    Pot.File.Util.delete(path)
   end
 end

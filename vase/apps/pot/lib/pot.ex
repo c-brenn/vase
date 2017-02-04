@@ -9,7 +9,8 @@ defmodule Pot do
       supervisor(Pot.Presence, []),
       supervisor(Pot.File.Supervisor, []),
       supervisor(Registry, [:unique, Pot.File.Registry]),
-      worker(Pot.File.Remote, [])
+      worker(Pot.File.Remote, []),
+      worker(Pot.Repo, [])
     ]
 
     opts = [strategy: :one_for_one, name: Pot.Supervisor]

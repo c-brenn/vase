@@ -1,5 +1,5 @@
 defmodule Pot.File.Local do
-  def replicate(path, hash) do
+  def replicate(path, _file, hash) do
     {:ok, pid} = Pot.File.Supervisor.track_file(path)
     register_presences(pid, path, hash)
   end
