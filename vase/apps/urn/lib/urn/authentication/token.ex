@@ -1,5 +1,5 @@
 defmodule Urn.Authentication.Token do
-  @max_age 1209600
+ @max_age 60 * 60 * 24
 
   def authenticate(token) do
     status = Phoenix.Token.verify(

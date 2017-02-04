@@ -9,6 +9,10 @@ use Mix.Config
 # back to each application for organization purposes.
 import_config "../apps/*/config/config.exs"
 
+config :urn, :auth_service,
+  host: "localhost",
+  port: 8000
+
 # Sample configuration (overrides the imported configuration above):
 #
 #     config :logger, :console,

@@ -20,8 +20,8 @@ defmodule Urn.Authentication.Headers do
     |> get_req_header("authentication")
     |> authenticate()
   end
-  def authenticate(["secret"]) do
-    {:ok, :f, :f}
+  def authenticate([token]) do
+    Token.authenticate(token)
   end
   def authenticate(_), do: {:error, :forbidden}
 end
