@@ -13,9 +13,11 @@ defmodule Urn.FileController do
     end
   end
 
-  def replicate(conn,  %{"path" => path, "hash" => hash}) do
+  def replicate(conn,  %{"path" => path,
+                         "hash" => hash,
+                         "file" => file}) do
     Pot.File.Local.delete(path)
-    Pot.File.Local.replicate(path, nil, hash)
+    Pot.File.Local.replicate(path, file, hash)
     conn |> text("success")
   end
 

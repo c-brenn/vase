@@ -6,8 +6,8 @@ defmodule Pot.File.Supervisor do
     Supervisor.start_link(__MODULE__, :ok, name: @name)
   end
 
-  def track_file(path) do
-    Supervisor.start_child(@name, [path])
+  def track_file(path, id) do
+    Supervisor.start_child(@name, [path, id])
   end
 
   def init(:ok) do

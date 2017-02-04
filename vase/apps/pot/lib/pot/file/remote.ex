@@ -24,12 +24,19 @@ defmodule Pot.File.Remote do
     Enum.take_random(Node.list, num_replicas)
   end
 
-  defp do_replicate(replica, path, _file, hash) do
+  defp do_replicate(replica, path, file, hash) do
     Task.start(fn ->
       %{host: host, port: port} = Urn.Node.http_info(replica)
       uri = host <> ":" <> port <> "/api/files/replicate"
+      token = Phoenix.Token.sign(Urn.Endpoint, "user", "foo")
+      body = {:form, [
+          {:path, path},
+          {:hash, hash},
+          {:file, file}
+      ]}
+      headers = [{"Authentication", token}]
 
-      HTTPoison.post(uri, {:form, [{:path, path}, {:hash, hash}]})
+      HTTPoison.post(uri, body, headers)
     end)
   end
 

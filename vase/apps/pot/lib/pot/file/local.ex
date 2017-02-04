@@ -1,15 +1,34 @@
 defmodule Pot.File.Local do
-  def replicate(path, _file, hash) do
-    {:ok, pid} = Pot.File.Supervisor.track_file(path)
-    register_presences(pid, path, hash)
+  alias Pot.Repo
+
+  def replicate(path, file, hash) do
+    {:ok, record} = persist(file, path)
+    if new?(path) do
+      {:ok, pid} = Pot.File.Supervisor.track_file(path, record.id)
+      register_presences(pid, path, hash)
+    end
   end
 
   def delete(path) do
     Registry.dispatch(Pot.File.Registry, path, fn files ->
       for { pid, _ } <- files do
-        Supervisor.terminate_child(Pot.File.Supervisor, pid)
+        GenServer.cast(pid, :delete)
       end
     end)
+  end
+
+  defp persist(file, path) do
+    {:ok, contents} = File.read(file)
+    %Pot.File{contents: contents, path: path}
+    |> Repo.insert(
+        on_conflict: :replace_all,
+        conflict_target: :path,
+        returning: [:id, :path]
+      )
+  end
+
+  def new?(path) do
+    Registry.lookup(Pot.File.Registry, path) == []
   end
 
   @doc """

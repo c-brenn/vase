@@ -17,10 +17,9 @@ defmodule Pot.File.Util do
         Pot.File.Remote.replicate(path, file, hash)
         :ok
       :local ->
-        # overwrite file contents
         hash = hash(file)
-        delete(path)
         Pot.File.Local.replicate(path, file, hash)
+        Pot.File.Remote.delete(path)
         Pot.File.Remote.replicate(path, file, hash)
         :ok
     end
