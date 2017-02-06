@@ -93,18 +93,50 @@ defmodule Pot.Presence do
 
   def which_node?(path) do
     local_node = Phoenix.PubSub.node_name(Pot.PubSub)
+    case choose_replica(path) do
+      :none -> :none
+      ^local_node -> :local
+      node -> {:remote, node}
+    end
+  end
+
+  def choose_replica(path) do
     case Phoenix.Tracker.list(__MODULE__, {:file, path}) do
       [] -> :none
       presences ->
-        # resolve any conflicting replicas by choosing the replica with the
-        # maximum hash -> may lead to old files being read while consistency is resolved
-        {node, _} = Enum.max_by(presences, fn ({_, %{hash: hash}}) -> hash end)
-        case node do
-          ^local_node -> :local
-          _ -> {:remote, node}
-        end
+        {_hash, nodes} =
+          presences
+          |> group_by_hash()
+          |> find_majority()
+        {node, _} = Enum.random(nodes)
+        node
     end
   end
+
+  defp group_by_hash(presences) do
+    presences
+    |> Enum.group_by(fn {_, %{hash: hash}} -> hash end)
+  end
+
+  def find_majority(counts) do
+    counts
+    |> Enum.max_by(fn {_, nodes} -> Enum.count(nodes) end)
+  end
+
+  def find_minority(path) do
+    Phoenix.Tracker.list(__MODULE__, {:file, path})
+    |> group_by_hash()
+    |> do_find_minority()
+  end
+
+  defp do_find_minority(counts) do
+    { majority_hash, _ } = find_majority(counts)
+    counts
+    |> Map.delete(majority_hash)
+    |> Enum.reduce([], fn({_, nodes}, acc) -> acc ++ nodes end)
+    |> Enum.map(&(elem(&1, 1)))
+  end
+
 
   defp group(presences) do
     presences

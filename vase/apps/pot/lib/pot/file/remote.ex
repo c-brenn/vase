@@ -39,8 +39,8 @@ defmodule Pot.File.Remote do
     end)
   end
 
-  def delete(path) do
-    GenServer.abcast(Node.list, Pot.File.Remote, {:delete, path})
+  def delete(path, nodes \\ Node.list) do
+    GenServer.abcast(nodes, Pot.File.Remote, {:delete, path})
   end
 
   def handle_cast({:delete, path}, s) do

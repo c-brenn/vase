@@ -28,6 +28,7 @@ defmodule Pot.File.Util do
   def read(path) do
     case which_node?(path) do
       :local ->
+        probabilistic_read_repair(path)
         Pot.File.Local.read(path)
       :none ->
         {:error, :no_such_file}
@@ -43,5 +44,18 @@ defmodule Pot.File.Util do
 
   def which_node?(path) do
     Pot.Presence.which_node?(path)
+  end
+
+  defp probabilistic_read_repair(path) do
+    path
+    |> probabilistic_read_repair(:rand.uniform())
+  end
+
+  defp probabilistic_read_repair(_, n) when n > 0.1, do: :ok
+  defp probabilistic_read_repair(path, _) do
+    Task.start(fn ->
+      minority = Pot.Presence.find_minority(path)
+      Pot.File.Remote.delete(path, minority)
+    end)
   end
 end
