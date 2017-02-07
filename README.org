@@ -1,0 +1,137 @@
+#+AUTHOR: Conor Brennan - 13327472
+
+* Vase
+
+A highly available distributed file system built for the coursework component of
+CS4032.
+
+** Design
+
+The architecture proposed in the project brief consists of two main services:
+the directory service, and the file storage service. With this architecture, the
+directory service coordinates reads and writes. It directs clients to the
+correct file server. The coordinator pattern prioritises consistency over
+availability. If the directory service becomes unavailable - whether due to a
+crash or a network partition - then none of of the file servers are reachable
+and the entire system is unavailable. Similarly, if one or more file servers
+become unavailable the system may have to reject read and write requests.
+
+I thought it would be interesting to design a DFS that prioritises availability
+over consistency. This design is best suited to an upload/download model - like
+Dropbox - rather than a collaborative editing model - like Google Drive -
+because in an available system, consistency becomes an issue. Providing
+consistency with predictable behaviour is much easier in the upload/download
+model.
+
+My design combines the directory and file storage services into a single
+service - that can be horizontally scaled - to avoid the availability problems
+outlined above. It makes use of [[https://hal.inria.fr/file/index/docid/555588/filename/techreport.pdf][cutting edge computer science theory]] (CRDTs) to
+provide provable eventual consistency. It is implemented as a web service.
+Clients can interact with the system over HTTPS. A sample client is provided.
+
+*** Directory & File Storage Service
+
+This combined service provides transparent access to files, regardless of their
+physical location in the system. Similar to the directory service outlined in
+the brief, each node knows where all files are located. Instead of using a
+consensus protocol, the mapping is implemented using a [[https://arxiv.org/pdf/1605.06424.pdf][Set CRDT]] which is
+replicated across all nodes. CRDTs are data types that provide eventual
+consistency. Each node has a replica of the Set, and can perform operations on
+the Set without having to contact other nodes. CRDTs provide guarantees that all
+operations are commutative, associative and monotonic. This is enough to ensure
+that all replicas will converge when they have seen all operations (regardless
+of the order). The lack of ordering constraints means that a simple Gossip
+algorithm can be used to transfer state and updates between the replicas.
+
+For example, when writing a file to a node, the node adds the file to its local
+replica of the Set. The Gossip algorithm then propagates this change through the
+system.
+
+The nodes are connected using Erlang's built in distribution mechanisms. This
+means that nodes are aware of which nodes are currently available. The Set CRDT
+is designed so that it too is aware of unavailable nodes, allowing clients to be
+notified.
+
+The service exposes both HTTPS and WebSocket interfaces for clients to connect
+to. The HTTPS API allows authenticated clients to read/write and delete files.
+When the service receives a request to operate on a file (for example to read
+it), the services looks in the Set to see which nodes have copies of the file.
+The request is then either handled locally, or it is redirected to the
+appropriate node.
+
+The WebSocket API allows clients to receive updates about file activity in real
+time. For example, if a user is looking at a directory and a file is added by
+another user, the user's client will be notified and the file will be added and
+displayed. This is implemented with a simple PubSub system and by hooking into
+the Gossip algorithm outlined above. When viewing a directory, the client
+subscribes to a WebSocket channel about events in that directory. This allows
+the file service node to publish events to directory subscribers when a Gossip
+diff is received.
+
+
+*** Security Service
+
+The security service authenticates users by user name and password. Once a client
+is authenticated a JSON Web Token is issued that can be verified by any of the
+other services (using a shared secret). Clients pass the token in HTTPS headers
+when interacting with the other services. As all traffic is directed over HTTPS,
+no further encryption is used in the system.
+
+*** Replication
+
+The system uses replication similar to that outlined in [[http://s3.amazonaws.com/AllThingsDistributed/sosp/amazon-dynamo-sosp2007.pdf][Amazon's Dynamo Paper]].
+When a file service node writes a file locally, it immediately responds to the
+client about the successful write. It then triggers asynchronous replication.
+The node chooses N other nodes in the cluster, and sends them requests to
+replicate the file. N is a compile time configuration option.
+
+As the system is AP, this replication will inevitably lead to inconsistency
+throughout the system. Again, the system uses a solution outlined in the Dynamo
+paper to overcome inconsistency. The Set CRDT that keeps track of file locations
+was extended to allow meta data to be stored about each file. On write, the file
+service hashes the file's contents and stores the hash as meta data in the Set.
+This hash can then be used to choose which node to read/write from. On reads for
+example, the file service looks in the Set CRDT to find the list of nodes where
+the file is replicated. It then uses the hash to find a quorum of nodes that
+agree on the file contents. One of these nodes is then chosen randomly and the
+client is redirected to read from that node. This quorum approach ensures
+deterministic resolution of inconsistency, but it does not remove the
+inconsistency from the system.
+
+To remove the inconsistency the system uses probabilistic read repair. Each read
+request has a 10% chance to trigger a repair of inconsistency. The client is
+redirect to read from a node in the majority (as normal). The repair process is
+triggered asynchronously. Each of the nodes that are not in the majority are
+deemed to have inconsistency replicas of the file. They are sent a message to
+delete their replicas. The file is then re-replicated on N random nodes.
+
+*** Caching
+
+As the design is based around the upload/download model, no caching is performed
+on any service. The user downloads and edits files at their own pace,
+effectively caching the file locally as they edit.
+*** Transactions & Locking
+
+The AP nature of the system does not fit well with a transactional-update model.
+ The system is designed to be available as long as one file service node is
+ reachable. Requiring multiple nodes to participate synchronously in writes
+ would break this guarantee. The replication scheme compensates for the lack of
+ transactions. As described earlier, inconsistencies between replicas are easily
+ detects and deterministically resolved. The read repair process ensures that
+ inconsistencies are removed from the system.
+
+Similarly, providing locking does not fit well with the system's AP guarantees.
+It would be impossible to provide a lock to a user in the event of a network
+partition, as two users could attempt to lock the same file on different nodes.
+The system is designed around the upload/download model which does not have much
+need for locking. Users edit files locally and upload entirely new versions,
+there is no real time editing that would require locking. Concurrent writes lead
+to an inconsistency across replicas, which is resolved using the replication
+scheme outlined earlier.
+
+Transactions and locking are suited to systems providing a 'single system
+image', whereas my system focuses on availability. Instead of providing
+transactions and locking for the CP system outlined the project brief, I have
+provided equivalent mechanisms for my AP system - quorum reads and probabilistic
+read repair.
+
